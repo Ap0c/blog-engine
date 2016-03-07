@@ -29,6 +29,25 @@ def read_template(filename):
 	return template
 
 
+def static_files(page, metadata):
+
+	"""Adds links to static files (js, css) to the page."""
+
+	head = ''
+
+	if 'scripts' in metadata:
+
+		for script in metadata['scripts']:
+			page += SCRIPT_TAG.format(script)
+
+	if 'stylesheets' in metadata:
+
+		for stylesheet in metadata['stylesheets']:
+			head += LINK_TAG.format(stylesheet)
+
+	return head, page
+
+
 def render_article(input_file, output_file, template):
 
 	"""Renders a markdown file to a given output file."""
@@ -38,19 +57,9 @@ def render_article(input_file, output_file, template):
 	with open(input_file, 'r') as f:
 		page = md.convert(f.read())
 
-	if 'scripts' in md.Meta:
-
-		for script in md.Meta['scripts']:
-			page += SCRIPT_TAG.format(script)
-
-	if 'stylesheets' in md.Meta:
-
-		head = ''
-
-		for stylesheet in md.Meta['stylesheets']:
-			head += LINK_TAG.format(stylesheet)
-
+	head, page = static_files(page, md.Meta)
 	title = md.Meta['title'][0] if 'title' in md.Meta else DEFAULT_TITLE
+
 	rendered = template.render(content=page, title=title, head=head)
 
 	with open(output_file, 'w') as outf:
@@ -69,7 +78,7 @@ def remove_build(build_dir):
 
 # ----- Article Class ----- #
 
-class Article():
+class _Article():
 
 	"""An article object, for rendering a specific article."""
 
@@ -141,6 +150,6 @@ class Engine():
 
 		for article in os.listdir(articles_src_dir):
 
-			article = Article(article, articles_src_dir, articles_build_dir,
+			article = _Article(article, articles_src_dir, articles_build_dir,
 				self._template)
 			article.build()
