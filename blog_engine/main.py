@@ -19,13 +19,43 @@ def render_article(md, input_file, output_file):
 			outf.write(page)
 
 
+# ----- Article Class ----- #
+
+class Article():
+
+	"""An article object, for rendering a specific article."""
+
+	_md = markdown.Markdown(extensions=['meta'])
+
+	def __init__(self, name, parent_dir, build_dir):
+
+		self._name = name
+		self._filename = name + '.md'
+		self._src_dir = os.path.join(parent_dir, name)
+		self._filepath = os.path.join(parent_dir, name, self._filename)
+		self._build_dir = os.path.join(build_dir, name)
+		self._build_file = os.path.join(self._build_dir, name + '.html')
+
+	def build(self):
+
+		"""Builds an article from source."""
+
+		shutil.copytree(self._src_dir, self._build_dir,
+				ignore=lambda p, f: [self._filename])
+
+		with open(self._filepath, 'r') as f:
+
+			page = self._md.convert(f.read())
+
+			with open(self._build_file, 'w') as outf:
+				outf.write(page)
+
+
 # ----- Engine Class ----- #
 
 class Engine():
 
 	"""The main Engine object, used to generate the static site from source."""
-
-	_md = markdown.Markdown(extensions=['meta'])
 
 	_articles_build_dir = 'articles'
 	_articles_url = '/' + _articles_build_dir + '/'
@@ -57,17 +87,15 @@ class Engine():
 
 		"""Builds the static site, saves to build directory."""
 
-		shutil.rmtree(self._build)
+		try:
+			shutil.rmtree(self._build)
+		except FileNotFoundError:
+			pass
+
 		articles_src_dir = os.path.join(self._src, self._articles_src_dir)
+		articles_build_dir = os.path.join(self._build, self._articles_build_dir)
 
 		for article in os.listdir(articles_src_dir):
 
-			filename = article + '.md'
-			filepath = os.path.join(articles_src_dir, article, filename)
-
-			input_dir = os.path.join(self._src, self._articles_src_dir, article)
-			output_dir = os.path.join(self._build, self._articles_build_dir, article)
-			output_file = os.path.join(output_dir, article + '.html')
-
-			shutil.copytree(input_dir, output_dir, ignore=lambda p, f: [filename])
-			render_article(self._md, filepath, output_file)
+			article = Article(article, articles_src_dir, articles_build_dir)
+			article.build()
