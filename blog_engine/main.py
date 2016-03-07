@@ -8,6 +8,7 @@ import markdown
 # ----- Setup ----- #
 
 SCRIPT_TAG = '\n<script type="text/javascript" src="./{}"></script>'
+LINK_TAG = '<link rel="stylesheet" href="./{}">\n'
 
 
 # ----- Functions ----- #
@@ -26,8 +27,15 @@ def render_article(input_file, output_file):
 		for script in md.Meta['scripts']:
 			page += SCRIPT_TAG.format(script)
 
+	if 'stylesheets' in md.Meta:
+
+		head = ''
+
+		for stylesheet in md.Meta['stylesheets']:
+			head += LINK_TAG.format(stylesheet)
+
 	with open(output_file, 'w') as outf:
-		outf.write(page)
+		outf.write(head + page)
 
 
 def remove_build(build_dir):
