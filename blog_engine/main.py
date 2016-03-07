@@ -66,6 +66,21 @@ def render_article(input_file, output_file, template):
 		outf.write(rendered)
 
 
+def build_article(name, parent_dir, build_dir, template):
+
+	"""Builds an individual article."""
+
+	filename = name + '.md'
+	src_dir = os.path.join(parent_dir, name)
+	filepath = os.path.join(parent_dir, name, filename)
+	build_dir = os.path.join(build_dir, name)
+	build_file = os.path.join(build_dir, name + '.html')
+
+	shutil.copytree(src_dir, build_dir, ignore=lambda p, f: [filename])
+
+	render_article(filepath, build_file, template)
+
+
 def remove_build(build_dir):
 
 	"""Wipes the previous build directory."""
@@ -74,32 +89,6 @@ def remove_build(build_dir):
 		shutil.rmtree(build_dir)
 	except FileNotFoundError:
 		pass
-
-
-# ----- Article Class ----- #
-
-class _Article():
-
-	"""An article object, for rendering a specific article."""
-
-	def __init__(self, name, parent_dir, build_dir, template):
-
-		self._name = name
-		self._filename = name + '.md'
-		self._src_dir = os.path.join(parent_dir, name)
-		self._filepath = os.path.join(parent_dir, name, self._filename)
-		self._build_dir = os.path.join(build_dir, name)
-		self._build_file = os.path.join(self._build_dir, name + '.html')
-		self._template = template
-
-	def build(self):
-
-		"""Builds an article from source, and copies static files across."""
-
-		shutil.copytree(self._src_dir, self._build_dir,
-				ignore=lambda p, f: [self._filename])
-
-		render_article(self._filepath, self._build_file, self._template)
 
 
 # ----- Engine Class ----- #
@@ -150,6 +139,5 @@ class Engine():
 
 		for article in os.listdir(articles_src_dir):
 
-			article = _Article(article, articles_src_dir, articles_build_dir,
+			build_article(article, articles_src_dir, articles_build_dir,
 				self._template)
-			article.build()
