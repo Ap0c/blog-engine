@@ -116,6 +116,18 @@ class Engine():
 		else:
 			self._template = _read_template(_BASE_TEMPLATE)
 
+	def _build_articles(self):
+
+		"""Builds all the articles in the static site."""
+
+		articles_src_dir = os.path.join(self._src, self._articles_src_dir)
+		articles_build_dir = os.path.join(self._build, self._articles_build_dir)
+
+		for article in os.listdir(articles_src_dir):
+
+			_build_article(article, articles_src_dir, articles_build_dir,
+				self._template)
+
 	@property
 	def articles_build_dir(self):
 
@@ -136,11 +148,4 @@ class Engine():
 		"""Builds the static site, saves to build directory."""
 
 		_remove_build(self._build)
-
-		articles_src_dir = os.path.join(self._src, self._articles_src_dir)
-		articles_build_dir = os.path.join(self._build, self._articles_build_dir)
-
-		for article in os.listdir(articles_src_dir):
-
-			_build_article(article, articles_src_dir, articles_build_dir,
-				self._template)
+		self._build_articles()
