@@ -5,7 +5,30 @@ import shutil
 import markdown
 
 
+# ----- Setup ----- #
+
+SCRIPT_TAG = '\n<script type="text/javascript" src="./{}"></script>'
+
+
 # ----- Functions ----- #
+
+def render_article(input_file, output_file):
+
+	"""Renders a markdown file to a given output file."""
+
+	md = markdown.Markdown(extensions=['meta'])
+
+	with open(input_file, 'r') as f:
+		page = md.convert(f.read())
+
+	if 'scripts' in md.Meta:
+
+		for script in md.Meta['scripts']:
+			page += SCRIPT_TAG.format(script)
+
+	with open(output_file, 'w') as outf:
+		outf.write(page)
+
 
 def remove_build(build_dir):
 
@@ -23,8 +46,6 @@ class Article():
 
 	"""An article object, for rendering a specific article."""
 
-	_md = markdown.Markdown(extensions=['meta'])
-
 	def __init__(self, name, parent_dir, build_dir):
 
 		self._name = name
@@ -41,11 +62,7 @@ class Article():
 		shutil.copytree(self._src_dir, self._build_dir,
 				ignore=lambda p, f: [self._filename])
 
-		with open(self._filepath, 'r') as f:
-			page = self._md.convert(f.read())
-
-		with open(self._build_file, 'w') as outf:
-			outf.write(page)
+		render_article(self._filepath, self._build_file)
 
 
 # ----- Engine Class ----- #
