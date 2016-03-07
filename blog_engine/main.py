@@ -19,6 +19,16 @@ def render_article(md, input_file, output_file):
 			outf.write(page)
 
 
+def remove_build(build_dir):
+
+	"""Wipes the previous build directory."""
+
+	try:
+		shutil.rmtree(build_dir)
+	except FileNotFoundError:
+		pass
+
+
 # ----- Article Class ----- #
 
 class Article():
@@ -87,10 +97,7 @@ class Engine():
 
 		"""Builds the static site, saves to build directory."""
 
-		try:
-			shutil.rmtree(self._build)
-		except FileNotFoundError:
-			pass
+		remove_build(self._build)
 
 		articles_src_dir = os.path.join(self._src, self._articles_src_dir)
 		articles_build_dir = os.path.join(self._build, self._articles_build_dir)
