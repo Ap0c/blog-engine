@@ -9,12 +9,15 @@ from jinja2 import Template
 
 # ----- Setup ----- #
 
-SCRIPT_TAG = '\n<script type="text/javascript" src="./{}"></script>'
-LINK_TAG = '<link rel="stylesheet" href="./{}">'
+_SCRIPT_TAG = '\n<script type="text/javascript" src="./{}"></script>'
+_LINK_TAG = '<link rel="stylesheet" href="./{}">'
 
-TEMPLATE_FILENAME = 'base.html'
-DEFAULT_TEMPLATE = pkg.resource_filename(__name__, TEMPLATE_FILENAME)
-DEFAULT_TITLE = 'My Blog'
+_TEMPLATE_DIR = 'templates'
+_TEMPLATES_PATH = pkg.resource_filename(__name__, _TEMPLATE_DIR)
+_BASE_TEMPLATE = os.path.join(_TEMPLATES_PATH, 'base.html')
+_LIST_TEMPLATE = os.path.join(_TEMPLATES_PATH, 'list.html')
+
+_DEFAULT_TITLE = 'My Blog'
 
 
 # ----- Functions ----- #
@@ -38,12 +41,12 @@ def _static_files(page, metadata):
 	if 'scripts' in metadata:
 
 		for script in metadata['scripts']:
-			page += SCRIPT_TAG.format(script)
+			page += _SCRIPT_TAG.format(script)
 
 	if 'stylesheets' in metadata:
 
 		for stylesheet in metadata['stylesheets']:
-			head += LINK_TAG.format(stylesheet)
+			head += _LINK_TAG.format(stylesheet)
 
 	return head, page
 
@@ -58,7 +61,7 @@ def _render_article(input_file, output_file, template):
 		page = md.convert(f.read())
 
 	head, page = _static_files(page, md.Meta)
-	title = md.Meta['title'][0] if 'title' in md.Meta else DEFAULT_TITLE
+	title = md.Meta['title'][0] if 'title' in md.Meta else _DEFAULT_TITLE
 
 	rendered = template.render(content=page, title=title, head=head)
 
@@ -111,7 +114,7 @@ class Engine():
 		if template:
 			self._template = _read_template(template)
 		else:
-			self._template = _read_template(DEFAULT_TEMPLATE)
+			self._template = _read_template(_BASE_TEMPLATE)
 
 	@property
 	def articles_build_dir(self):

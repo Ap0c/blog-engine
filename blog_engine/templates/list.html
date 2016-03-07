@@ -1,0 +1,7 @@
+<ul>
+{% for article in articles %}
+	<a href="{{ article['link'] }}">
+		<li>{{ article['name'] }}</li>
+	</a>
+{% endfor %}
+</ul>
