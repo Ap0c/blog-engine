@@ -1,14 +1,21 @@
 # ----- Imports ----- #
 
 import os
+import pkg_resources as pkg
 import shutil
 import markdown
+from jinja2 import Template
 
 
 # ----- Setup ----- #
 
 SCRIPT_TAG = '\n<script type="text/javascript" src="./{}"></script>'
-LINK_TAG = '<link rel="stylesheet" href="./{}">\n'
+LINK_TAG = '<link rel="stylesheet" href="./{}">'
+BASE_TEMPLATE = 'base.html'
+DEFAULT_TITLE = 'My Blog'
+
+with open(pkg.resource_filename(__name__, BASE_TEMPLATE), 'r') as base_templ:
+	template = Template(base_templ.read())
 
 
 # ----- Functions ----- #
@@ -34,8 +41,11 @@ def render_article(input_file, output_file):
 		for stylesheet in md.Meta['stylesheets']:
 			head += LINK_TAG.format(stylesheet)
 
+	title = md.Meta['title'][0] if 'title' in md.Meta else DEFAULT_TITLE
+	rendered = template.render(content=page, title=title, head=head)
+
 	with open(output_file, 'w') as outf:
-		outf.write(head + page)
+		outf.write(rendered)
 
 
 def remove_build(build_dir):
