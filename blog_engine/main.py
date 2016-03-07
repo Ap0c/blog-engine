@@ -7,18 +7,6 @@ import markdown
 
 # ----- Functions ----- #
 
-def render_article(md, input_file, output_file):
-
-	"""Renders a markdown file to a given output file."""
-
-	with open(input_file, 'r') as f:
-
-		page = md.convert(f.read())
-
-		with open(output_file, 'w') as outf:
-			outf.write(page)
-
-
 def remove_build(build_dir):
 
 	"""Wipes the previous build directory."""
@@ -48,17 +36,16 @@ class Article():
 
 	def build(self):
 
-		"""Builds an article from source."""
+		"""Builds an article from source, and copies static files across."""
 
 		shutil.copytree(self._src_dir, self._build_dir,
 				ignore=lambda p, f: [self._filename])
 
 		with open(self._filepath, 'r') as f:
-
 			page = self._md.convert(f.read())
 
-			with open(self._build_file, 'w') as outf:
-				outf.write(page)
+		with open(self._build_file, 'w') as outf:
+			outf.write(page)
 
 
 # ----- Engine Class ----- #
