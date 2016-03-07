@@ -26,8 +26,8 @@ def _read_template(filename):
 
 	"""Reads a Jinja2 template from file."""
 
-	with open(filename, 'r') as base_templ:
-		template = Template(base_templ.read())
+	with open(filename, 'r') as templ_file:
+		template = Template(templ_file.read())
 
 	return template
 
@@ -68,20 +68,25 @@ def _render_article(input_file, output_file, template):
 	with open(output_file, 'w') as outf:
 		outf.write(rendered)
 
+	return title
+
 
 def _build_article(name, parent_dir, build_dir, template):
 
 	"""Builds an individual article."""
 
 	filename = name + '.md'
+	pagename = name + '.html'
 	src_dir = os.path.join(parent_dir, name)
 	filepath = os.path.join(parent_dir, name, filename)
 	build_dir = os.path.join(build_dir, name)
-	build_file = os.path.join(build_dir, name + '.html')
+	build_file = os.path.join(build_dir, pagename)
 
 	shutil.copytree(src_dir, build_dir, ignore=lambda p, f: [filename])
 
-	_render_article(filepath, build_file, template)
+	article_name = _render_article(filepath, build_file, template)
+
+	return {'name': article_name, 'link': pagename}
 
 
 def _remove_build(build_dir):
@@ -104,17 +109,32 @@ class Engine():
 	_articles_url = '/' + _articles_build_dir + '/'
 	_articles_src_dir = 'articles'
 
-	def __init__(self, src='content', build='build', template=None):
+	def __init__(self, src='content', build='build'):
 
 		"""Sets up source and build directories."""
 
 		self._src = src
 		self._build = build
 
-		if template:
-			self._template = _read_template(template)
-		else:
-			self._template = _read_template(_BASE_TEMPLATE)
+	def _read_templates(self, base_template, list_template):
+
+		"""Reads the site templates in from file."""
+
+		self._base_template = _read_template(base_template or _BASE_TEMPLATE)
+		self._list_template = _read_template(list_template or _LIST_TEMPLATE)
+
+	def _build_list(self, articles):
+
+		"""Builds the articles list from template."""
+
+		content = self._list_template.render(articles=articles)
+		rendered = self._base_template.render(content=content,
+			title='Article List', head='')
+
+		output_file = os.path.join(self._build, 'list.html')
+
+		with open(output_file, 'w') as outf:
+			outf.write(rendered)
 
 	def _build_articles(self):
 
@@ -123,10 +143,17 @@ class Engine():
 		articles_src_dir = os.path.join(self._src, self._articles_src_dir)
 		articles_build_dir = os.path.join(self._build, self._articles_build_dir)
 
+		articles = []
+
 		for article in os.listdir(articles_src_dir):
 
-			_build_article(article, articles_src_dir, articles_build_dir,
-				self._template)
+			info = _build_article(article, articles_src_dir, articles_build_dir,
+				self._base_template)
+
+			info['link'] = self._articles_url + article + '/' + info['link']
+			articles.append(info)
+
+		return articles
 
 	@property
 	def articles_build_dir(self):
@@ -143,9 +170,12 @@ class Engine():
 		self._articles_build_dir = value
 		self._articles_url = '/' + value + '/'
 
-	def build(self):
+	def build(self, base_template=None, list_template=None):
 
 		"""Builds the static site, saves to build directory."""
 
 		_remove_build(self._build)
-		self._build_articles()
+		self._read_templates(base_template, list_template)
+
+		articles = self._build_articles()
+		self._build_list(articles)
