@@ -5,9 +5,18 @@ import shutil
 import markdown
 
 
-# ----- Setup ----- #
+# ----- Functions ----- #
 
-md = markdown.Markdown(extensions=['meta'])
+def render_article(md, input_file, output_file):
+
+	"""Renders a markdown file to a given output file."""
+
+	with open(input_file, 'r') as f:
+
+		page = md.convert(f.read())
+
+		with open(output_file, 'w') as outf:
+			outf.write(page)
 
 
 # ----- Engine Class ----- #
@@ -15,6 +24,8 @@ md = markdown.Markdown(extensions=['meta'])
 class Engine():
 
 	"""The main Engine object, used to generate the static site from source."""
+
+	_md = markdown.Markdown(extensions=['meta'])
 
 	_articles_build_dir = 'articles'
 	_articles_url = '/' + _articles_build_dir + '/'
@@ -46,6 +57,7 @@ class Engine():
 
 		"""Builds the static site, saves to build directory."""
 
+		shutil.rmtree(self._build)
 		articles_src_dir = os.path.join(self._src, self._articles_src_dir)
 
 		for article in os.listdir(articles_src_dir):
@@ -58,10 +70,4 @@ class Engine():
 			output_file = os.path.join(output_dir, article + '.html')
 
 			shutil.copytree(input_dir, output_dir, ignore=lambda p, f: [filename])
-
-			with open(filepath, 'r') as f:
-
-				page = md.convert(f.read())
-
-				with open(output_file, 'w') as outf:
-					outf.write(page)
+			render_article(self._md, filepath, output_file)
