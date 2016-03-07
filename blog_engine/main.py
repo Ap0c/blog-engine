@@ -1,6 +1,7 @@
 # ----- Imports ----- #
 
 import os
+import shutil
 import markdown
 
 
@@ -49,4 +50,18 @@ class Engine():
 
 		for article in os.listdir(articles_src_dir):
 
-			print(article)
+			filename = article + '.md'
+			filepath = os.path.join(articles_src_dir, article, filename)
+
+			input_dir = os.path.join(self._src, self._articles_src_dir, article)
+			output_dir = os.path.join(self._build, self._articles_build_dir, article)
+			output_file = os.path.join(output_dir, article + '.html')
+
+			shutil.copytree(input_dir, output_dir, ignore=lambda p, f: [filename])
+
+			with open(filepath, 'r') as f:
+
+				page = md.convert(f.read())
+
+				with open(output_file, 'w') as outf:
+					outf.write(page)
