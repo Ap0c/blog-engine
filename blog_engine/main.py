@@ -11,16 +11,25 @@ from jinja2 import Template
 
 SCRIPT_TAG = '\n<script type="text/javascript" src="./{}"></script>'
 LINK_TAG = '<link rel="stylesheet" href="./{}">'
-BASE_TEMPLATE = 'base.html'
-DEFAULT_TITLE = 'My Blog'
 
-with open(pkg.resource_filename(__name__, BASE_TEMPLATE), 'r') as base_templ:
-	template = Template(base_templ.read())
+TEMPLATE_FILENAME = 'base.html'
+DEFAULT_TEMPLATE = pkg.resource_filename(__name__, TEMPLATE_FILENAME)
+DEFAULT_TITLE = 'My Blog'
 
 
 # ----- Functions ----- #
 
-def render_article(input_file, output_file):
+def read_template(filename):
+
+	"""Reads a Jinja2 template from file."""
+
+	with open(filename, 'r') as base_templ:
+		template = Template(base_templ.read())
+
+	return template
+
+
+def render_article(input_file, output_file, template):
 
 	"""Renders a markdown file to a given output file."""
 
@@ -64,7 +73,7 @@ class Article():
 
 	"""An article object, for rendering a specific article."""
 
-	def __init__(self, name, parent_dir, build_dir):
+	def __init__(self, name, parent_dir, build_dir, template):
 
 		self._name = name
 		self._filename = name + '.md'
@@ -72,6 +81,7 @@ class Article():
 		self._filepath = os.path.join(parent_dir, name, self._filename)
 		self._build_dir = os.path.join(build_dir, name)
 		self._build_file = os.path.join(self._build_dir, name + '.html')
+		self._template = template
 
 	def build(self):
 
@@ -80,7 +90,7 @@ class Article():
 		shutil.copytree(self._src_dir, self._build_dir,
 				ignore=lambda p, f: [self._filename])
 
-		render_article(self._filepath, self._build_file)
+		render_article(self._filepath, self._build_file, self._template)
 
 
 # ----- Engine Class ----- #
@@ -93,12 +103,17 @@ class Engine():
 	_articles_url = '/' + _articles_build_dir + '/'
 	_articles_src_dir = 'articles'
 
-	def __init__(self, src='content', build='build'):
+	def __init__(self, src='content', build='build', template=None):
 
 		"""Sets up source and build directories."""
 
 		self._src = src
 		self._build = build
+
+		if template:
+			self._template = read_template(template)
+		else:
+			self._template = read_template(DEFAULT_TEMPLATE)
 
 	@property
 	def articles_build_dir(self):
@@ -126,5 +141,6 @@ class Engine():
 
 		for article in os.listdir(articles_src_dir):
 
-			article = Article(article, articles_src_dir, articles_build_dir)
+			article = Article(article, articles_src_dir, articles_build_dir,
+				self._template)
 			article.build()
