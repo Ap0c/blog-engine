@@ -1,3 +1,3 @@
 # ----- Imports ----- #
 
-from main import Engine
+from .main import Engine
