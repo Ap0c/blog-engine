@@ -19,8 +19,6 @@ _LIST_TEMPLATE = os.path.join(_TEMPLATES_PATH, 'list.html')
 
 _SITE_DIR = 'site'
 
-_DEFAULT_TITLE = 'My Blog'
-
 
 # ----- Functions ----- #
 
@@ -63,7 +61,7 @@ def _render_page(input_file, output_file, template):
 		page = md.convert(f.read())
 
 	head, page = _static_files(page, md.Meta)
-	title = md.Meta['title'][0] if 'title' in md.Meta else _DEFAULT_TITLE
+	title = md.Meta['title'][0] if 'title' in md.Meta else None
 
 	rendered = template.render(content=page, title=title, head=head)
 
