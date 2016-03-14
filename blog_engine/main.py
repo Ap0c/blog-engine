@@ -161,18 +161,20 @@ class Engine():
 
 		site_path = os.path.join(self._src, _SITE_DIR)
 
-		for file in os.scandir(site_path):
+		if os.path.isdir(site_path):
 
-			filename, extension = os.path.splitext(file.name)
+			for file in os.scandir(site_path):
 
-			if extension == '.md':
+				filename, extension = os.path.splitext(file.name)
 
-				out_file = os.path.join(self._build, filename + '.html')
-				_render_page(file.path, out_file, self._base_template)
+				if extension == '.md':
 
-			else:
+					out_file = os.path.join(self._build, filename + '.html')
+					_render_page(file.path, out_file, self._base_template)
 
-				shutil.copy(file.path, self._build)
+				else:
+
+					shutil.copy(file.path, self._build)
 
 	@property
 	def articles_build_dir(self):
