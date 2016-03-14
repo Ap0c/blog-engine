@@ -17,6 +17,8 @@ _TEMPLATES_PATH = pkg.resource_filename(__name__, _TEMPLATE_DIR)
 _BASE_TEMPLATE = os.path.join(_TEMPLATES_PATH, 'base.html')
 _LIST_TEMPLATE = os.path.join(_TEMPLATES_PATH, 'list.html')
 
+_SITE_DIR = 'site'
+
 _DEFAULT_TITLE = 'My Blog'
 
 
@@ -51,7 +53,7 @@ def _static_files(page, metadata):
 	return head, page
 
 
-def _render_article(input_file, output_file, template):
+def _render_page(input_file, output_file, template):
 
 	"""Renders a markdown file to a given output file."""
 
@@ -84,7 +86,7 @@ def _build_article(name, parent_dir, build_dir, template):
 
 	shutil.copytree(src_dir, build_dir, ignore=lambda p, f: [filename])
 
-	article_name = _render_article(filepath, build_file, template)
+	article_name = _render_page(filepath, build_file, template)
 
 	return {'name': article_name, 'link': pagename}
 
@@ -155,6 +157,25 @@ class Engine():
 
 		return articles
 
+	def _build_site(self):
+
+		"""Builds any general site pages (e.g. index, about)."""
+
+		site_path = os.path.join(self._src, _SITE_DIR)
+
+		for file in os.scandir(site_path):
+
+			filename, extension = os.path.splitext(file.name)
+
+			if extension == '.md':
+
+				out_file = os.path.join(self._build, filename + '.html')
+				_render_page(file.path, out_file, self._base_template)
+
+			else:
+
+				shutil.copy(file.path, self._build)
+
 	@property
 	def articles_build_dir(self):
 
@@ -193,3 +214,4 @@ class Engine():
 
 		articles = self._build_articles()
 		self._build_list(articles)
+		self._build_site()
