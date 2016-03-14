@@ -13,7 +13,9 @@ _SCRIPT_TAG = '\n<script type="text/javascript" src="./{}"></script>'
 _LINK_TAG = '<link rel="stylesheet" href="./{}">'
 
 _TEMPLATE_DIR = 'templates'
+_STATIC_DIR = 'static'
 _TEMPLATES_PATH = pkg.resource_filename(__name__, _TEMPLATE_DIR)
+_STATIC_PATH = pkg.resource_filename(__name__, _STATIC_DIR)
 _BASE_TEMPLATE = os.path.join(_TEMPLATES_PATH, 'base.html')
 _LIST_TEMPLATE = os.path.join(_TEMPLATES_PATH, 'list.html')
 
@@ -212,6 +214,8 @@ class Engine():
 		_remove_build(self._build)
 		self._read_templates(base_template, list_template)
 
+		shutil.copytree(_STATIC_PATH, self._build)
+		self._build_site()
+
 		articles = self._build_articles()
 		self._build_list(articles)
-		self._build_site()
