@@ -4,20 +4,77 @@ html, body {
 	padding: 0;
 	margin: 0;
 	font-family: sans-serif;
+	color: #111;
+}
+
+a {
+	color: #222;
+}
+
+a:hover {
+	color: coral;
+}
+
+p {
+	line-height: 1.5;
+}
+
+hr {
+	border: none;
+	width: 80vw;
+	height: 1px;
+	background-color: #111;
+	margin: 0 auto;
+}
+
+
+/* ----- Nav ----- */
+
+nav {
+	display: flex;
+	flex-wrap: wrap;
+	justify-content: center;
+	padding: 2em 0;
+}
+
+nav > a {
+	display: block;
+	flex-grow: 1;
+	text-align: center;
+	text-decoration: none;
+	color: inherit;
+	font-size: x-large;
 }
 
 
 /* ----- Content ----- */
 
 main {
-	margin: 0 2%;
+	margin: 2em 4% 0;
 }
 
 @media (min-width: 640px) {
 
 	main {
 		width: 40em;
-		margin: 0 auto;
+		margin: 2em auto 0;
 	}
 
+}
+
+
+/* ----- Article List ----- */
+
+.article-list {
+	list-style: circle;
+	margin: 0;
+	padding: 0;
+}
+
+.article-list li {
+	font-size: large;
+}
+
+.article-list > a {
+	text-decoration: none;
 }
