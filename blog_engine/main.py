@@ -170,6 +170,20 @@ class Engine():
 		self._articles_build_dir = value
 		self._articles_url = '/' + value + '/'
 
+	@property
+	def articles_src_dir(self):
+
+		"""Getter for the articles src directory."""
+
+		return self._articles_src_dir
+
+	@articles_src_dir.setter
+	def articles_src_dir(self, value):
+
+		"""Sets the name in the src directory for articles."""
+
+		self._articles_src_dir = value
+
 	def build(self, base_template=None, list_template=None):
 
 		"""Builds the static site, saves to build directory."""
