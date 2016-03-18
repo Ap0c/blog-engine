@@ -1,6 +1,6 @@
 # Blog Engine
 
-A simple tool for compiling a Markdown-based blog to a static site, written in Python.
+A simple tool for compiling a Markdown-based blog to a static site, written in Python 3.
 
 ## Install
 
