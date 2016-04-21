@@ -57,7 +57,7 @@ def _render_page(input_file, output_file, template):
 
 	"""Renders a markdown file to a given output file."""
 
-	md = markdown.Markdown(extensions=['meta'])
+	md = markdown.Markdown(extensions=['meta', 'def_list'])
 
 	with open(input_file, 'r') as f:
 		page = md.convert(f.read())
